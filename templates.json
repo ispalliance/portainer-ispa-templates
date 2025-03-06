@@ -16,6 +16,7 @@
             "administrator_only": false,
             "name": "Mapping ND",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
+            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
