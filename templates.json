@@ -1,0 +1,84 @@
+{
+    "version": "2",
+    "templates": [
+        {
+            "type": 3,
+            "title": "Mapping ND",
+            "description": "Mapping ND application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
+            "note": "",
+            "categories": ["sandbox"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "stackfile": "stacks/mappingnd-mappingnd.yml"
+            },
+            "administrator_only": false,
+            "name": "Mapping ND",
+            "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
+
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "mappingnd",
+                    "label": "Name of the stack",
+                    "description": "String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "PHP_VERSION",
+                    "default": "php8.3",
+                    "label": "PHP version",
+                    "description": "Version of the PHP used in the containers.",
+                    "preset": true
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "default": "changeme",
+                    "label": "Postgresql password.",
+                    "description": "Password for the $STACKNAME database user."
+                },
+                {
+                    "name": "DOWNLOAD_LATEST_BUILD",
+                    "default": "yes",
+                    "label": "Download latest build? (yes / no)",
+                    "description": "Download latest build and make update when init container starts. Should be yes for first start of the stack."
+                },
+                {
+                    "name": "DOWNLOAD_URL",
+                    "default": "https://build.ispa.cz/mapping_nd/latest.tar.tgz",
+                    "label": "Download URL",
+                    "description": "URL where can be app build downloaded."
+                },
+                {
+                    "name": "DOWNLOAD_USERNAME",
+                    "default": "username",
+                    "label": "Download username",
+                    "description": "Username for download build."
+                },
+                {
+                    "name": "DOWNLOAD_PASSWORD",
+                    "default": "",
+                    "label": "Download password",
+                    "description": "Password for download build."
+                },
+                {
+                    "name": "APP_URL",
+                    "default": "mapping.example.com",
+                    "label": "URL",
+                    "description": "URL of this application"
+                },
+                {
+                    "name": "APP_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
+                    "name": "ADMINER_IP_WHITELIST",
+                    "default": "127.0.0.1/32",
+                    "label": "Adminer allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                }
+            ]
+        }
+    ]
+}
