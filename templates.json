@@ -2,6 +2,7 @@
     "version": "2",
     "templates": [
         {
+            "id": 1,
             "type": 3,
             "title": "Mapping ND",
             "description": "Mapping ND application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
