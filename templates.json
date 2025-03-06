@@ -10,12 +10,11 @@
             "platform": "linux",
             "repository": {
                 "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
-                "stackfile": "stacks/mappingnd-mappingnd.yml"
+                "stackfile": "stacks/stack-mappingnd.yml"
             },
             "administrator_only": false,
             "name": "Mapping ND",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-
             "env": [
                 {
                     "name": "STACKNAME",
