@@ -31,16 +31,16 @@
                     "select": [
                         {
                           "text": "php 8.3",
-                          "value": "php8.3",
+                          "value": "8.3",
                           "default": true
                         },
                         {
                           "text": "php 8.0",
-                          "value": "php8.0"
+                          "value": "8.0"
                         },
                         {
                           "text": "php 7.2",
-                          "value": "php7.2"
+                          "value": "7.2"
                         }
                     ]
                 },
@@ -104,7 +104,7 @@
                 },
                 {
                     "name": "APP_VOLUME_SHARED",
-                    "default": "/srv/data/${STACKNAME:err}/shared",
+                    "default": "/srv/data/${STACKNAME:?err}/shared",
                     "label": "App shared volume",
                     "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
                 }
