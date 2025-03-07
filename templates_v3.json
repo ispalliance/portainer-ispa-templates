@@ -4,8 +4,8 @@
         {
             "id": 1,
             "type": 3,
-            "title": "crm title",
-            "description": "CRM application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
+            "title": "CRM + Dokus",
+            "description": "CRM application with dokus and adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
             "note": "",
             "categories": ["sandbox"],
             "platform": "linux",
@@ -14,7 +14,7 @@
                 "stackfile": "stacks/stack-crm.yml"
             },
             "administrator_only": false,
-            "name": "crm name",
+            "name": "crm",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
             "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
             "env": [
@@ -97,10 +97,10 @@
                     "description": "Domain name without http:// or https://"
                 },
                 {
-                    "name": "DOKUS_URL",
+                    "name": "DOKUS_PASSWORD",
                     "default": "",
-                    "label": "MariaDB password.",
-                    "description": "Password for the $STACKNAME database user."
+                    "label": "Dokus root password.",
+                    "description": "Password for the dokus root user."
                 },
                 {
                     "name": "APP_IP_WHITELIST",
@@ -131,7 +131,7 @@
         {
             "id": 2,
             "type": 3,
-            "title": "mapping",
+            "title": "Mapping",
             "description": "Mapping application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
             "note": "",
             "categories": ["sandbox"],
