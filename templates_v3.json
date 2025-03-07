@@ -4,7 +4,7 @@
         {
             "id": 1,
             "type": 3,
-            "title": "Mapping",
+            "title": "mapping",
             "description": "Mapping application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
             "note": "",
             "categories": ["sandbox"],
