@@ -1,0 +1,166 @@
+x-volumes: &volumes
+  volumes:
+    - current:/var/www/current
+    - ${APP_VOLUME_SHARED:?err}:/var/www/shared
+
+x-env: &env
+  SANDBOX_CONFIG: 0
+  # SANDBOX__dibi__database: ${STACKNAME:?err}
+  # SANDBOX__dibi__username: ${STACKNAME:?err}
+  # SANDBOX__dibi__password: ${MARIADB_PASSWORD:?err}
+  # SANDBOX__dibi__host: mysql
+  # SANDBOX__dibi__sqlmode: "NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+  # SANDBOX__parameters__diskFileStoragePath: "/var/www/shared/filestorage"
+  # SANDBOX__parameters__module__base__route__host: ${APP_URL}
+  # SANDBOX__parameters__module__base__route__defaultSecured: NO
+
+services:
+  mysql:
+    image: mariadb:10.3
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$MARIADB_PASSWORD"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - default
+#    ports:
+#      # outside:inside
+#      - ${MARIADB_EXTERNAL_PORT:-3306}:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD:?err}
+      MARIADB_DATABASE: ${STACKNAME:?err}
+      MARIADB_USER: ${STACKNAME:?err}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?err}
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/mysql
+
+  redis:
+    image: redis:7.4-alpine
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    image: r.ispa.dev/sandbox/apache2:php${PHP_VERSION}
+    networks:
+      - default
+      - proxy
+    <<: *volumes
+    environment:
+      <<: *env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-web.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web.rule=Host(`${APP_URL}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-ipwhitelist.ipwhitelist.sourcerange=${APP_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-web.middlewares=${STACKNAME:?err}-web-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.middlewares=${STACKNAME:?err}-web-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.service=${STACKNAME:?err}-web"
+      - "traefik.http.services.${STACKNAME:?err}-web.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+  
+  cron:
+    image: r.ispa.dev/sandbox/cron:php${PHP_VERSION}
+    networks:
+      - default
+    <<: *volumes
+    environment:
+      <<: *env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    restart: unless-stopped
+  
+  init:
+    image: r.ispa.dev/sandbox/init:php${PHP_VERSION}
+    networks:
+      - default
+      - proxy
+    <<: *volumes
+    environment:
+      DOWNLOAD_LATEST_BUILD: ${DOWNLOAD_LATEST_BUILD:-no}
+      DOWNLOAD_URL: ${DOWNLOAD_URL:?err}
+      DOWNLOAD_USERNAME: ${DOWNLOAD_USERNAME:?err}
+      DOWNLOAD_PASSWORD: ${DOWNLOAD_PASSWORD:?err}
+      <<: *env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  dokus:
+    image: r.ispa.dev/base/dokus
+    #ports: 
+    #  - ${DOKUS_EXTERNAL_PORT:-1122}:8080
+    environment:
+      DOKUS_ROOT_PASSWORD: ${DOKUS_ROOT_PASSWORD:-DoKus}
+    restart: unless-stopped
+    volumes:
+      - dokus:/root/.dokus/root
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus.rule=Host(`${DOKUS_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-dokus-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-dokus-ipwhitelist.ipwhitelist.sourcerange=${DOKUS_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus.middlewares=${STACKNAME:?err}-dokus-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.rule=Host(`${DOKUS_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.middlewares=${STACKNAME:?err}-dokus-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-dokus-secure.service=${STACKNAME:?err}-dokus"
+      - "traefik.http.services.${STACKNAME:?err}-dokus.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
+
+  adminer:
+    image: dockette/adminer:dg
+    restart: unless-stopped
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.rule=Host(`${APP_URL}`) && Path(`/adminer`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-ipwhitelist.ipwhitelist.sourcerange=${ADMINER_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.middlewares=${STACKNAME:?err}-adminer-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.rule=Host(`${APP_URL}`) && Path(`/adminer`)"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.middlewares=${STACKNAME:?err}-adminer-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.service=${STACKNAME:?err}-adminer"
+      - "traefik.http.services.${STACKNAME:?err}-adminer.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+volumes:
+  db:
+  current:
+  dokus:
+
+networks:
+  proxy:
+    external: true
