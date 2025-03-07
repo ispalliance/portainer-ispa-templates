@@ -1,8 +1,3 @@
-x-volumes: &volumes
-  volumes:
-    - current:/var/www/current
-    - /srv/data/${STACKNAME:?err}/shared:/var/www/shared
-
 services:
   postgres:
     image: postgres:14
@@ -45,7 +40,9 @@ services:
     networks:
       - default
       - proxy
-    <<: *volumes
+    volumes:
+      - current:/var/www/current
+      - ${APP_VOLUME_SHARED:?err}:/var/www/shared
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,7 +69,9 @@ services:
     image: r.ispa.dev/sandbox/init:php${PHP_VERSION:?err}
     networks:
       - default
-    <<: *volumes
+    volumes:
+      - current:/var/www/current
+      - ${APP_VOLUME_SHARED:?err}:/var/www/shared
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,7 +86,9 @@ services:
 #    restart: unless-stopped
 #    networks:
 #      - default
-#    <<: *volumes
+#    volumes:
+#      - current:/var/www/current
+#      - ${APP_VOLUME_SHARED:?err}:/var/www/shared
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
