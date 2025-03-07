@@ -1,0 +1,169 @@
+x-volumes: &volumes
+  volumes:
+    - current:/var/www/current
+    - ${APP_VOLUME_SHARED:?err}:/var/www/shared
+
+services:
+  postgres:
+    image: postgres:9
+    restart: unless-stopped
+    networks:
+      - default
+#    ports:
+#      # outside:inside
+#      - "${POSTGRES_EXTERNAL_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: Europe/Prague
+      PGTZ: Europe/Prague
+      POSTGRES_USER: ${STACKNAME:?err}
+      POSTGRES_DB: ${STACKNAME:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+    volumes:
+      - db:/var/lib/postgresql/data
+      # get timezone from host:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  rabbitmq:
+    image: docker.io/bitnami/rabbitmq:3.11
+    environment:
+      - RABBITMQ_SECURE_PASSWORD=no
+      - RABBITMQ_UPDATE_PASSWORD=yes
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
+      - RABBITMQ_LOGS=-
+    volumes:
+      - rabbitmq:/bitnami/rabbitmq/mnesia
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  web:
+    image: r.ispa.dev/sandbox/apache2:php${PHP_VERSION:?err}
+    networks:
+      - default
+      - proxy
+    <<: *volumes
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-web.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web.rule=Host(`${APP_URL}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-ipwhitelist.ipwhitelist.sourcerange=${APP_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-web.middlewares=${STACKNAME:?err}-web-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.middlewares=${STACKNAME:?err}-web-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.service=${STACKNAME:?err}-web"
+      - "traefik.http.services.${STACKNAME:?err}-web.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+  init:
+    image: r.ispa.dev/sandbox/init:php${PHP_VERSION:?err}
+    networks:
+      - default
+    <<: *volumes
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DOWNLOAD_LATEST_BUILD: ${DOWNLOAD_LATEST_BUILD:-no}
+      DOWNLOAD_URL: ${DOWNLOAD_URL:?err}
+      DOWNLOAD_USERNAME: ${DOWNLOAD_USERNAME:?err}
+      DOWNLOAD_PASSWORD: ${DOWNLOAD_PASSWORD:?err}
+
+  cron:
+    image: r.ispa.dev/sandbox/cron:php${PHP_VERSION:?err}
+    restart: unless-stopped
+    networks:
+      - default
+    <<: *volumes
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nms-networkcontrollertask:
+    image: r.ispa.dev/sandbox/base:php${PHP_VERSION:?err}
+    restart: unless-stopped
+    command: current/bin/console.sh dataflow:consume networkControllerTask
+    deploy:
+      replicas: ${NETWORK_CONTROLLER_TASK_REPLICAS:-2}
+    networks:
+      - default
+    <<: *volumes
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  nms-networkcontrollerjob:
+    image: r.ispa.dev/sandbox/base:php${PHP_VERSION:?err}
+    restart: unless-stopped
+    command: current/bin/console.sh dataflow:consume networkControllerJob
+    deploy:
+      replicas: ${NETWORK_CONTROLLER_JOB_REPLICAS:-4}
+    networks:
+      - default
+    <<: *volumes
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  adminer:
+    image: dockette/adminer:dg
+    restart: unless-stopped
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.rule=Host(`${APP_URL}`) && Path(`/adminer`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-ipwhitelist.ipwhitelist.sourcerange=${ADMINER_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.middlewares=${STACKNAME:?err}-adminer-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.rule=Host(`${APP_URL}`) && Path(`/adminer`)"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.middlewares=${STACKNAME:?err}-adminer-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.service=${STACKNAME:?err}-adminer"
+      - "traefik.http.services.${STACKNAME:?err}-adminer.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+volumes:
+  db:
+  current:
+  rabbitmq:
+
+networks:
+  proxy:
+    external: true
