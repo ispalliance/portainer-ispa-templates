@@ -14,7 +14,7 @@
                 "stackfile": "stacks/stack-mapping.yml"
             },
             "administrator_only": false,
-            "name": "Mapping",
+            "name": "mapping",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
             "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
             "env": [
