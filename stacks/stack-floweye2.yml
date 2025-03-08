@@ -1,0 +1,179 @@
+x-env: &env
+  NETTE__DATABASE__HOST: postgres
+  NETTE__DATABASE__USER: ${STACKNAME:?err}
+  NETTE__DATABASE__PASSWORD: ${POSTGRES_PASSWORD:?err}
+  NETTE__DATABASE__DBNAME: ${STACKNAME:?err}
+
+  NETTE__SMTP__HOST: ${SMTP_HOST:?err}
+  NETTE__SMTP__PORT: ${SMTP_PORT:?err}  # (int) SMTP port, typicaly: 25, 465, 587
+  NETTE__SMTP__SECURE: ${SMTP_SECURE-}  # (null,ssl,tls)
+  NETTE__SMTP__USERNAME: ${SMTP_USERNAME-}
+  NETTE__SMTP__PASSWORD: ${SMTP_PASSWORD-}
+
+  NETTE__MAILING__FROM: ${MAILING_FROM:-info@ispa.cz}
+  NETTE__MAILING__FROM_NAME: ${MAILING_FROM_NAME:-Floweye}
+
+  #NETTE__PROCESSING__FROM: ${PROCESSING_FROM:-info@ispa.cz}
+  #NETTE__PROCESSING__FROMNAME: ${PROCESSING_FROM_NAME:-Floweye}
+
+  NETTE__HTTP__PROXY: 172.16.0.0/12
+  NETTE__EXTRAS__3RD__PEDEF__HOST: https://pedef.adminus.io/v1/pdf/
+  NETTE__PROJECT__URL: https://${FLOWEYE_URL:?err}
+  NETTE__L10N__DEFAULT__LOCALE: cs
+  #NETTE__SENTRY__CLIENT__DSN: 
+
+  #NETTE__socials__google__client_Id: 
+  #NETTE__socials__google__client_Secret: 
+  
+  NETTE__REDIS__HOST: redis
+  #NETTE__REDIS__DATABASE: 
+  #NETTE__REDIS__PASSWORD: 
+
+x-common: &common
+  image: r.ispa.dev/floweye/floweye:dev
+  restart: always
+  networks:
+    - default
+    - proxy
+  volumes:
+    # PHP sessions
+    - sessions:/var/lib/php/sessions
+    # Data storage
+    - ${FLOWEYE_VOLUME_DATA:-data}:/srv/data
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  web:
+    command: web-run
+    <<: *common
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost/api/public/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    environment:
+      <<: *env
+      NETTE_DEBUG: 0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye.rule=Host(`${FLOWEYE_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-floweye-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-floweye-ipwhitelist.ipwhitelist.sourcerange=${FLOWEYE_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye.middlewares=${STACKNAME:?err}-floweye-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.rule=Host(`${FLOWEYE_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.middlewares=${STACKNAME:?err}-floweye-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.service=${STACKNAME:?err}-floweye"
+      - "traefik.http.services.${STACKNAME:?err}-floweye.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+  worker:
+    command: worker-run
+    <<: *common
+    environment:
+      <<: *env
+      NETTE_DEBUG: 1
+
+  postgres:
+    image: dockette/postgres:14
+    networks:
+      - default
+    #ports:
+    #  # outside:inside
+    #  - ${POSTGRES_EXTERNAL_PORT:-5432}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U floweye"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: Europe/Prague
+      PGTZ: Europe/Prague
+      POSTGRES_USER: ${STACKNAME:?err}
+      POSTGRES_DB: ${STACKNAME:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+    restart: unless-stopped
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      # get timezone from hosts:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  adminer:
+    image: dockette/adminer:dg
+    restart: unless-stopped
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.rule=Host(`${FLOWEYE_URL:?err}`) && Path(`/adminer`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-adminer-ipwhitelist.ipwhitelist.sourcerange=${ADMINER_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.middlewares=${STACKNAME:?err}-adminer-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.rule=Host(`${FLOWEYE_URL:?err}`) && Path(`/adminer`)"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.middlewares=${STACKNAME:?err}-adminer-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.service=${STACKNAME:?err}-adminer"
+      - "traefik.http.services.${STACKNAME:?err}-adminer.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+#  smtp:
+#    image: axllent/mailpit
+#    #ports:
+#      ## web gui
+#      #- 8025:8025
+#      ## smtp
+#      #- 1025:1025
+#    environment:
+#      TZ: Europe/Prague
+#      MP_WEBROOT: /smtp
+#      MP_VERBOSE: false
+#      #MP_UI_AUTH: "user1:password1 user2:password2"
+#    networks:
+#      - default
+#      - proxy
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp.entrypoints=http"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp.rule=Host(`${FLOWEYE_URL:?err}`) && PathPrefix(`/smtp`)"
+#      - "traefik.http.middlewares.${STACKNAME:?err}-smtp-https-redirect.redirectscheme.scheme=https"
+#      - "traefik.http.middlewares.${STACKNAME:?err}-smtp-ipwhitelist.ipwhitelist.sourcerange=${SMTP_IP_WHITELIST:-0.0.0.0/0}"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp.middlewares=${STACKNAME:?err}-smtp-https-redirect"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.entrypoints=https"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.rule=Host(`${FLOWEYE_URL:?err}`) && PathPrefix(`/smtp`)"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.middlewares=${STACKNAME:?err}-smtp-ipwhitelist"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.tls=true"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.tls.certresolver=http"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.service=${STACKNAME:?err}-smtp"
+#      - "traefik.http.services.${STACKNAME:?err}-smtp.loadbalancer.server.port=8025"
+#      - "traefik.docker.network=proxy"
+
+volumes:
+  sessions:
+  postgres:
+
+networks:
+  proxy:
+    external: true
