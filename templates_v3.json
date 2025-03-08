@@ -652,7 +652,7 @@
                     "name": "POSTGRES_PASSWORD",
                     "default": "",
                     "label": "Postgresql password.",
-                    "description": "Password for the $STACKNAME database user."
+                    "description": "Password for the database user."
                 },
                 {
                     "name": "SMTP_HOST",
@@ -665,6 +665,18 @@
                     "default": "1025",
                     "label": "SMTP Port",
                     "description": "Typicaly 25 or 465 or 587."
+                },
+                {
+                    "name": "SMTP_USERNAME",
+                    "default": "",
+                    "label": "SMTP Username",
+                    "description": "Username for connecting to the SMTP server. "
+                },
+                {
+                    "name": "SMTP_PASSWORD",
+                    "default": "",
+                    "label": "SMTP Password",
+                    "description": "Password for connecting to the SMTP server. "
                 },
                 {
                     "name": "SMTP_SECURE",
@@ -693,7 +705,7 @@
                     "description": "Source e-mail address used for emails sent from the Floweye."
                 },
                 {
-                    "name": "MAILING_NAME",
+                    "name": "MAILING_FROM_NAME",
                     "default": "Floweye",
                     "label": "Mailing name",
                     "description": "Name of the sender used for emails sent from the Floweye."
