@@ -13,12 +13,12 @@ x-env: &env
   NETTE__MAILING__FROM: ${MAILING_FROM:-info@ispa.cz}
   NETTE__MAILING__FROM_NAME: ${MAILING_FROM_NAME:-Floweye}
 
-  #NETTE__PROCESSING__FROM: ${PROCESSING_FROM:-info@ispa.cz}
-  #NETTE__PROCESSING__FROMNAME: ${PROCESSING_FROM_NAME:-Floweye}
+  NETTE__PROCESSING__FROM: ${MAILING_FROM:-info@ispa.cz}
+  NETTE__PROCESSING__FROMNAME: ${MAILING_FROM_NAME:-Floweye}
 
   NETTE__HTTP__PROXY: 172.16.0.0/12
   NETTE__EXTRAS__3RD__PEDEF__HOST: https://pedef.adminus.io/v1/pdf/
-  NETTE__PROJECT__URL: https://${FLOWEYE_URL:?err}
+  NETTE__PROJECT__URL: https://${FLOWEYE_FQDN:?err}
   NETTE__L10N__DEFAULT__LOCALE: cs
   #NETTE__SENTRY__CLIENT__DSN: 
 
@@ -61,12 +61,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${STACKNAME:?err}-floweye.entrypoints=http"
-      - "traefik.http.routers.${STACKNAME:?err}-floweye.rule=Host(`${FLOWEYE_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye.rule=Host(`${FLOWEYE_FQDN:?err}`)"
       - "traefik.http.middlewares.${STACKNAME:?err}-floweye-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.${STACKNAME:?err}-floweye-ipwhitelist.ipwhitelist.sourcerange=${FLOWEYE_IP_WHITELIST:-0.0.0.0/0}"
       - "traefik.http.routers.${STACKNAME:?err}-floweye.middlewares=${STACKNAME:?err}-floweye-https-redirect"
       - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.entrypoints=https"
-      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.rule=Host(`${FLOWEYE_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.rule=Host(`${FLOWEYE_FQDN:?err}`)"
       - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.middlewares=${STACKNAME:?err}-floweye-ipwhitelist"
       - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.tls=true"
       - "traefik.http.routers.${STACKNAME:?err}-floweye-secure.tls.certresolver=http"
@@ -126,12 +126,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${STACKNAME:?err}-adminer.entrypoints=http"
-      - "traefik.http.routers.${STACKNAME:?err}-adminer.rule=Host(`${FLOWEYE_URL:?err}`) && Path(`/adminer`)"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer.rule=Host(`${FLOWEYE_FQDN:?err}`) && Path(`/adminer`)"
       - "traefik.http.middlewares.${STACKNAME:?err}-adminer-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.${STACKNAME:?err}-adminer-ipwhitelist.ipwhitelist.sourcerange=${ADMINER_IP_WHITELIST:-0.0.0.0/0}"
       - "traefik.http.routers.${STACKNAME:?err}-adminer.middlewares=${STACKNAME:?err}-adminer-https-redirect"
       - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.entrypoints=https"
-      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.rule=Host(`${FLOWEYE_URL:?err}`) && Path(`/adminer`)"
+      - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.rule=Host(`${FLOWEYE_FQDN:?err}`) && Path(`/adminer`)"
       - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.middlewares=${STACKNAME:?err}-adminer-ipwhitelist"
       - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls=true"
       - "traefik.http.routers.${STACKNAME:?err}-adminer-secure.tls.certresolver=http"
@@ -157,12 +157,12 @@ services:
 #    labels:
 #      - "traefik.enable=true"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp.entrypoints=http"
-#      - "traefik.http.routers.${STACKNAME:?err}-smtp.rule=Host(`${FLOWEYE_URL:?err}`) && PathPrefix(`/smtp`)"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp.rule=Host(`${FLOWEYE_FQDN:?err}`) && PathPrefix(`/smtp`)"
 #      - "traefik.http.middlewares.${STACKNAME:?err}-smtp-https-redirect.redirectscheme.scheme=https"
 #      - "traefik.http.middlewares.${STACKNAME:?err}-smtp-ipwhitelist.ipwhitelist.sourcerange=${SMTP_IP_WHITELIST:-0.0.0.0/0}"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp.middlewares=${STACKNAME:?err}-smtp-https-redirect"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.entrypoints=https"
-#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.rule=Host(`${FLOWEYE_URL:?err}`) && PathPrefix(`/smtp`)"
+#      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.rule=Host(`${FLOWEYE_FQDN:?err}`) && PathPrefix(`/smtp`)"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.middlewares=${STACKNAME:?err}-smtp-ipwhitelist"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.tls=true"
 #      - "traefik.http.routers.${STACKNAME:?err}-smtp-secure.tls.certresolver=http"
