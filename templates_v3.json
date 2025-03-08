@@ -581,6 +581,43 @@
                     "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
                 }
             ]
+        },
+        {
+            "id": 6,
+            "type": 3,
+            "title": "Dokus",
+            "description": "Dokus application. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
+            "note": "",
+            "categories": ["sandbox"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "stackfile": "stacks/stack-dokus.yml"
+            },
+            "administrator_only": false,
+            "name": "dokus",
+            "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
+            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "DOKUS_URL",
+                    "default": "dokus.example.com",
+                    "label": "Dokus URL.",
+                    "description": "Domain name without http:// or https://"
+                },
+                {
+                    "name": "DOKUS_PASSWORD",
+                    "default": "",
+                    "label": "Dokus root password.",
+                    "description": "Password for the dokus root user."
+                },
+                {
+                    "name": "DOKUS_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Adminer allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                }
+            ]
         }
     ]
 }
