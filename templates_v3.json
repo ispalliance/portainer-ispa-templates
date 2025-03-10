@@ -712,6 +712,115 @@
                 }
 
             ]
+        },
+        {
+            "id": 8,
+            "type": 3,
+            "title": "IPR",
+            "description": "IPR application with adminer. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
+            "note": "",
+            "categories": ["sandbox"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "stackfile": "stacks/stack-ipr.yml"
+            },
+            "administrator_only": false,
+            "name": "ipr",
+            "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
+            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "ipr",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used as name for database, traefik, etc. String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "PHP_VERSION",
+                    "label": "PHP version",
+                    "description": "Version of the PHP used in the containers.",
+                    "select": [
+                        {
+                          "text": "php 8.3",
+                          "value": "8.3"
+                        },
+                        {
+                          "text": "php 8.0",
+                          "value": "8.0",
+                          "default": true
+                        },
+                        {
+                          "text": "php 7.2",
+                          "value": "7.2"
+                        }
+                    ]
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "default": "",
+                    "label": "Postgresql password.",
+                    "description": "Password for the $STACKNAME database user."
+                },
+                {
+                    "name": "DOWNLOAD_LATEST_BUILD",
+                    "label": "Download latest build?",
+                    "description": "Download latest build and make update when init container starts. Should be yes for first start of the stack.",
+                    "select": [
+                        {
+                          "text": "yes",
+                          "value": "yes",
+                          "default": true
+                        },
+                        {
+                          "text": "no",
+                          "value": "no"
+                        }
+                    ]
+                },
+                {
+                    "name": "DOWNLOAD_URL",
+                    "default": "https://build.ispa.cz/<your-build-here>/latest.tar.gz",
+                    "label": "Download URL",
+                    "description": "URL where can be app build downloaded."
+                },
+                {
+                    "name": "DOWNLOAD_USERNAME",
+                    "default": "",
+                    "label": "Download username",
+                    "description": "Username for download build."
+                },
+                {
+                    "name": "DOWNLOAD_PASSWORD",
+                    "default": "",
+                    "label": "Download password",
+                    "description": "Password for download build."
+                },
+                {
+                    "name": "APP_URL",
+                    "default": "ipr.example.com",
+                    "label": "URL",
+                    "description": "Domain name without http:// or https://"
+                },
+                {
+                    "name": "APP_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
+                    "name": "ADMINER_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Adminer allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
+                    "name": "APP_VOLUME_SHARED",
+                    "default": "/srv/data/${STACKNAME:?err}/shared",
+                    "label": "App shared volume",
+                    "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
+                }
+            ]
         }
     ]
 }
