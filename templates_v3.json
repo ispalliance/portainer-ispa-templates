@@ -944,7 +944,7 @@
                 "stackfile": "stacks/stack-sms.yml"
             },
             "administrator_only": false,
-            "name": "ipr",
+            "name": "sms",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
             "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
             "env": [
