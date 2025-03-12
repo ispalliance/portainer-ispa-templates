@@ -852,12 +852,12 @@
                     "select": [
                         {
                           "text": "php 8.3",
-                          "value": "8.3"
+                          "value": "8.3",
+                          "default": true
                         },
                         {
                           "text": "php 8.0",
-                          "value": "8.0",
-                          "default": true
+                          "value": "8.0"
                         },
                         {
                           "text": "php 7.2",
