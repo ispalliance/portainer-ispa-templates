@@ -76,7 +76,7 @@ services:
       - "traefik.http.routers.${STACKNAME:?err}-web-secure.service=${STACKNAME:?err}-web"
       - "traefik.http.services.${STACKNAME:?err}-web.loadbalancer.server.port=80"
       - "traefik.docker.network=proxy"
-  
+
   cron:
     image: r.ispa.dev/sandbox/cron:php${PHP_VERSION}
     networks:
@@ -87,9 +87,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-
     restart: unless-stopped
-  
+
   init:
     image: r.ispa.dev/sandbox/init:php${PHP_VERSION}
     networks:
@@ -131,7 +130,6 @@ services:
 volumes:
   db:
   current:
-  dokus:
 
 networks:
   proxy:
