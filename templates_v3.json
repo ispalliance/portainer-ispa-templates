@@ -625,7 +625,7 @@
             "title": "Floweye2",
             "description": "Floweye2 application. Using traefikv2 rProxy (should be preinstaled on your docker platform).",
             "note": "",
-            "categories": ["sandbox"],
+            "categories": ["floweye"],
             "platform": "linux",
             "repository": {
                 "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
