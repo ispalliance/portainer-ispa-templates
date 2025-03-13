@@ -1039,6 +1039,53 @@
                     "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
                 }
             ]
+        },
+        {
+            "id": 11,
+            "type": 3,
+            "title": "Stanley",
+            "description": "The Stanley app connects to a specified mailbox using IMAP. It automatically creates processes in the Floweye application from the received emails.To ensure proper functionality, you need to create the configuration file config.local.neon inside the config folder. ",
+            "note": "",
+            "categories": ["floweye"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "stackfile": "stacks/stack-stanley.yml"
+            },
+            "administrator_only": false,
+            "name": "stanley",
+            "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
+            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "stanley",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used as name for database, traefik, etc. String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "STANLEY_VERSION",
+                    "label": "Stanley version",
+                    "description": "The Stanley version should match the Floweye version.",
+                    "select": [
+                        {
+                          "text": "v2",
+                          "value": "dev",
+                          "default": true
+                        },
+                        {
+                          "text": "v1",
+                          "value": "stable"
+                        }
+                    ]
+                },
+                {
+                    "name": "STANLEY_VOLUME_CONFIG",
+                    "default": "/srv/data/${STACKNAME:?err}/config",
+                    "label": "Stanley volume with config files",
+                    "description": "Volume or bind mount for application's 'config' folder. It is recommended to use bind mount to the host filesystem."
+                }
+            ]
         }
     ]
 }
