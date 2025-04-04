@@ -1081,9 +1081,9 @@
                 },
                 {
                     "name": "STANLEY_VOLUME_CONFIG",
-                    "default": "/srv/data/${STACKNAME:?err}/config",
+                    "default": "/srv/data/${STACKNAME:?err}",
                     "label": "Stanley volume with config files",
-                    "description": "Volume or bind mount for application's 'config' folder. It is recommended to use bind mount to the host filesystem."
+                    "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
                 }
             ]
         }

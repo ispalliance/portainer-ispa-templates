@@ -3,4 +3,4 @@ services:
     image: r.ispa.dev/lotus/stanley:${STANLEY_VERSION:?err}
     restart: unless-stopped
     volumes: 
-      - ${STANLEY_VOLUME_CONFIG:?err}:/var/www/current/app/
+      - ${STANLEY_VOLUME_CONFIG:?err}:/var/www/shared
