@@ -4,3 +4,7 @@ services:
     restart: unless-stopped
     volumes: 
       - ${STANLEY_VOLUME_CONFIG:?err}:/var/www/shared
+      - db:/var/www/current/db
+
+volumes:
+  db:
