@@ -668,7 +668,7 @@
                 },
                 {
                     "name": "SMTP_USERNAME",
-                    "default": "",
+                    "default": null,
                     "label": "SMTP Username",
                     "description": "Username for connecting to the SMTP server. "
                 },
