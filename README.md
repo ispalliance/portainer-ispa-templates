@@ -6,6 +6,8 @@ Portainer documentation of the app templates [here.](https://docs.portainer.io/a
 
 **Minimum supported Portainer version: 2.20.0**
 
+:warning: **Recommended portainer version at this time is 2.21.5 LTS!** Because of [this bug](https://github.com/issues/created?issue=portainer%7Cportainer%7C12654).
+
 Templates use the version 3 format, which requires Portainer 2.20.0 or newer.
 
 ![How to show templates](./screenshots/show_templates.png)
