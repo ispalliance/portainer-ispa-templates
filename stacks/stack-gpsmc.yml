@@ -63,7 +63,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      redis:
+      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
     labels:
@@ -92,6 +92,8 @@ services:
       <<: *env
     depends_on:
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
 
