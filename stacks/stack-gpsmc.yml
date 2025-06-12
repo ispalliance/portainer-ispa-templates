@@ -36,21 +36,6 @@ services:
     volumes:
       - db:/var/lib/mysql
 
-  rabbitmq:
-    image: docker.io/bitnami/rabbitmq:3.11
-    environment:
-      - RABBITMQ_SECURE_PASSWORD=no
-      - RABBITMQ_UPDATE_PASSWORD=yes
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
-      - RABBITMQ_LOGS=-
-    volumes:
-      - rabbitmq:/bitnami/rabbitmq/mnesia
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
-
   web:
     image: r.ispa.dev/sandbox/apache2:php7.2
     #image: r.ispa.dev/sandbox/apache2:php${PHP_VERSION}
@@ -62,8 +47,6 @@ services:
       <<: *env
     depends_on:
       mysql:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
     labels:
@@ -92,8 +75,6 @@ services:
       <<: *env
     depends_on:
       mysql:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
 
@@ -139,7 +120,6 @@ services:
 volumes:
   db:
   current:
-  rabbitmq:
 
 networks:
   proxy:
