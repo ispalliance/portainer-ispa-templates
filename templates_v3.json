@@ -1097,7 +1097,7 @@
             "platform": "linux",
             "repository": {
                 "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
-                "stackfile": "stacks/stack-gps.yml"
+                "stackfile": "stacks/stack-gpsmc.yml"
             },
             "administrator_only": false,
             "name": "gpsmc",
