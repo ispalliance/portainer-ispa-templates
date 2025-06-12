@@ -139,6 +139,7 @@ services:
 volumes:
   db:
   current:
+  rabbitmq:
 
 networks:
   proxy:
