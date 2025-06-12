@@ -1117,12 +1117,6 @@
                     "description": "Password for the $STACKNAME database user."
                 },
                 {
-                    "name": "RABBITMQ_PASSWORD",
-                    "default": "",
-                    "label": "RabbitMQ password.",
-                    "description": "Password for the RabbitMQ."
-                },
-                {
                     "name": "DOWNLOAD_LATEST_BUILD",
                     "label": "Download latest build?",
                     "description": "Download latest build and make update when init container starts. Should be yes for first start of the stack.",
