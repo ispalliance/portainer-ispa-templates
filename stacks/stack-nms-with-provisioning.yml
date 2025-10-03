@@ -5,7 +5,7 @@ x-volumes: &volumes
 
 services:
   postgres:
-    image: postgres:9
+    image: postgres:14
     restart: unless-stopped
     networks:
       - default
