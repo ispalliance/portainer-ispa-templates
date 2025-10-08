@@ -709,8 +709,25 @@
                     "default": "Floweye",
                     "label": "Mailing name",
                     "description": "Name of the sender used for emails sent from the Floweye."
+                },
+                {
+                    "name": "FLOWEYE_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
+                    "name": "ADMINER_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Adminer allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access Adminer web gui."
+                },
+                {
+                    "name": "SMTP_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Mailpit allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access Mailpit web gui."
                 }
-
             ]
         },
         {
