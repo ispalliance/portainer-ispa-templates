@@ -220,7 +220,7 @@
                 {
                     "name": "DOKUS_IP_WHITELIST",
                     "default": "0.0.0.0/0",
-                    "label": "Adminer allowed IP addresses",
+                    "label": "Dokus allowed IP addresses",
                     "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
                 },
                 {
