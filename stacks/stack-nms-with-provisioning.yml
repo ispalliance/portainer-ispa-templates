@@ -41,7 +41,7 @@ services:
       retries: 30
 
   rabbitmq:
-    image: docker.io/bitnami/rabbitmq:3.11
+    image: docker.io/bitnamilegacy/rabbitmq:3.11
     environment:
       - RABBITMQ_SECURE_PASSWORD=no
       - RABBITMQ_UPDATE_PASSWORD=yes
