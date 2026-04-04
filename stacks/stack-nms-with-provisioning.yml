@@ -48,7 +48,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
       - RABBITMQ_LOGS=-
       - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
-      - RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT=1GB
+      - RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT=${RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT:-1GB}
     volumes:
       - rabbitmq:/bitnami/rabbitmq/mnesia
     healthcheck:
