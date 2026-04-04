@@ -10,13 +10,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-crm.yml"
             },
             "administrator_only": false,
             "name": "crm",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -119,13 +119,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-crm-and-dokus.yml"
             },
             "administrator_only": false,
             "name": "crm",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -246,13 +246,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-nms.yml"
             },
             "administrator_only": false,
             "name": "nms",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -355,13 +355,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-nms-with-provisioning.yml"
             },
             "administrator_only": false,
             "name": "nms",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -488,13 +488,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-mapping.yml"
             },
             "administrator_only": false,
             "name": "mapping",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -597,13 +597,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-dokus.yml"
             },
             "administrator_only": false,
             "name": "dokus",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "DOKUS_URL",
@@ -757,13 +757,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-ipr.yml"
             },
             "administrator_only": false,
             "name": "ipr",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -866,13 +866,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-portal.yml"
             },
             "administrator_only": false,
             "name": "portal",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -975,13 +975,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-sms.yml"
             },
             "administrator_only": false,
             "name": "sms",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -1084,13 +1084,13 @@
             "categories": ["floweye"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-stanley.yml"
             },
             "administrator_only": false,
             "name": "stanley",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
@@ -1131,13 +1131,13 @@
             "categories": ["sandbox"],
             "platform": "linux",
             "repository": {
-                "url": "https://github.com/lukaskaplan/portainer-ispa-templates",
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
                 "stackfile": "stacks/stack-gpsmc.yml"
             },
             "administrator_only": false,
             "name": "gpsmc",
             "logo": "https://www.ispalliance.cz/favicon/apple-touch-icon.png",
-            "maintainer": "https://github.com/lukaskaplan/portainer-ispa-templates",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
                     "name": "STACKNAME",
