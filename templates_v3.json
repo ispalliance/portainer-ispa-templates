@@ -466,6 +466,12 @@
                     "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
                 },
                 {
+                    "name": "RABBITMQ_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "RabbitMQ allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
                     "name": "APP_VOLUME_SHARED",
                     "default": "/srv/data/${STACKNAME:?err}/shared",
                     "label": "App shared volume",

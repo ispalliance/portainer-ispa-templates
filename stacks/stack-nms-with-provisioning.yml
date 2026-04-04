@@ -47,6 +47,7 @@ services:
       - RABBITMQ_UPDATE_PASSWORD=yes
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
       - RABBITMQ_LOGS=-
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
       - RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT=1GB
     volumes:
       - rabbitmq:/bitnami/rabbitmq/mnesia
@@ -55,6 +56,21 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq.rule=Host(`${APP_URL}`) && Path(`/rabbitmq`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-rabbitmq-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-rabbitmq-ipwhitelist.ipwhitelist.sourcerange=${RABBITMQ_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq.middlewares=${STACKNAME:?err}-rabbitmq-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.rule=Host(`${APP_URL}`) && Path(`/rabbitmq`)"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.middlewares=${STACKNAME:?err}-rabbitmq-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-rabbitmq-secure.service=${STACKNAME:?err}-rabbitmq"
+      - "traefik.http.services.${STACKNAME:?err}-rabbitmq.loadbalancer.server.port=15672"
+      - "traefik.docker.network=proxy"
 
   web:
     image: r.ispa.dev/sandbox/apache2:php${PHP_VERSION:?err}
