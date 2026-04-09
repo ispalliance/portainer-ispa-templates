@@ -1,6 +1,6 @@
 services:
-  stanley:
-    image: r.ispa.dev/lotus/stanley:${STANLEY_VERSION:?err}
+  stanley2:
+    image: r.ispa.dev/masina/stanley2:${STANLEY_VERSION:-latest}
     restart: unless-stopped
     volumes: 
       - ${STANLEY_VOLUME_CONFIG:?err}:/var/www/shared
