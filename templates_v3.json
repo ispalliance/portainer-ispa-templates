@@ -1085,7 +1085,7 @@
             "platform": "linux",
             "repository": {
                 "url": "https://github.com/ispalliance/portainer-ispa-templates",
-                "stackfile": "stacks/stack-stanley.yml"
+                "stackfile": "stacks/stack-stanley2.yml"
             },
             "administrator_only": false,
             "name": "stanley2",
