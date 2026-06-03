@@ -13,8 +13,9 @@
  - [ ] mailpit
  - [X] floweye2
  - [X] stanley v1 a v2
- - smartpbx2
- - [ ] voicebot
+ - [ ] smartpbx2
+ - [X] smartpbx3 + voicebot + s3
+ - [ ] voicebot (twillio version)
  - [ ] callrobot
  
 

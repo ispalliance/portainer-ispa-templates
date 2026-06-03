@@ -1200,6 +1200,110 @@
                     "description": "Volume or bind mount for application's 'shared' folder. It is recommended to use bind mount to the host filesystem."
                 }
             ]
+        },
+        {
+            "id": 13,
+            "type": 3,
+            "title": "SmartPBX3 + Voicebot + Minio",
+            "description": "SmartPBX3 with integrated Voicebot and Minio storage.",
+            "note": "",
+            "categories": ["masina"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
+                "stackfile": "stacks/stack-smartpbx3.yml"
+            },
+            "administrator_only": false,
+            "name": "smartpbx3",
+            "logo": "",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "smartpbx3",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used in traefik labels, etc. String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "SIP_USERNAME",
+                    "default": "",
+                    "label": "SIP username",
+                    "description": "Username for SIP registration of the SmartPBX3 application."
+                },
+                {
+                    "name": "SIP_PASSWORD",
+                    "default": "",
+                    "label": "SIP password",
+                    "description": "Password for SIP registration of the SmartPBX3 application."
+                },
+                {
+                    "name": "SIP_SERVER",
+                    "default": "",
+                    "label": "SIP server",
+                    "description": "FQDN of the SIP server to which the SmartPBX3 application will register."
+                },
+                {
+                    "name": "SIP_REGISTER",
+                    "default": "yes",
+                    "label": "SIP registration",
+                    "description": "Whether to register with the SIP server."
+                },
+                {
+                    "name": "SIP_DIVERSIONID",
+                    "default": "",
+                    "label": "SIP diversion ID",
+                    "description": "The diversion ID for SIP calls. It is phone number."
+                },
+                {
+                    "name": "MICROSOFT_TTS_API_KEY",
+                    "default": "",
+                    "label": "Microsoft TTS API key",
+                    "description": "API key for Microsoft Text-to-Speech service."
+                },
+                {
+                    "name": "S3_ENDPOINT_URL",
+                    "default": "",
+                    "label": "S3 endpoint URL",
+                    "description": "URL of the Minio's S3 endpoint."
+                },
+                {
+                    "name": "S3_SECRET_KEY",
+                    "default": "",
+                    "label": "S3 secret key",
+                    "description": "Secret key for accessing the Minio'sS3 endpoint."
+                },
+                {
+                    "name": "S3_GUI_URL",
+                    "default": "",
+                    "label": "S3 GUI URL",
+                    "description": "URL of the Minio web interface."
+                },
+                {
+                    "name": "VOICEBOT_URL",
+                    "default": "",
+                    "label": "Voicebot URL",
+                    "description": "FQDN of the Voicebot application."
+                },
+                {
+                    "name": "VOICEBOT_KEY",
+                    "default": "",
+                    "label": "Voicebot key",
+                    "description": "Secret key used for securing the webhook endpoint of the Voicebot application. It should be a random string."
+                },
+                {
+                    "name": "MASINA_URL",
+                    "default": "",
+                    "label": "Masina URL",
+                    "description": "FQDN of the Masina application which will be connected to the Voicebot."
+                },
+                {
+                    "name": "MASINA_TOKEN",
+                    "default": "",
+                    "label": "Masina token",
+                    "description": "Token for authenticating the connection between Voicebot and Masina."
+                }
+            ]
+
         }
     ]
 }

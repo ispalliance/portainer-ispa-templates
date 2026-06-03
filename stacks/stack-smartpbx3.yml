@@ -1,0 +1,101 @@
+services:
+
+  smartpbx:
+    image: r.ispa.dev/base/smartpbx3:${SMARTPBX3_VERSION:-latest}
+    restart: unless-stopped
+    volumes:
+      - tmp:/tmp
+    networks:
+      - default
+    environment:
+      # Asterisk config
+      - SIP_USERNAME=${SIP_USERNAME:?err}
+      - SIP_PASSWORD=${SIP_PASSWORD:?err}
+      - SIP_SERVER=${SIP_SERVER:?err}
+      - SIP_REGISTER=${SIP_REGISTER:-yes}
+      - SIP_DIVERSIONID=${SIP_DIVERSIONID:?err}
+      
+      - LOCAL_NET=${LOCAL_NET:-172.16.0.0/12}
+      - LOG_FILE=/tmp/smartpbx.log
+      # Microsoft config
+      - MICROSOFT_TTS_API_KEY=${MICROSOFT_TTS_API_KEY:?err}
+      # Masina config
+      - WEBHOOK_URL=https://${VOICEBOT_URL:?err}?token=${VOICEBOT_KEY:?err}
+      # S3 config
+      - S3_ENDPOINT=https://${S3_ENDPOINT_URL:?err}
+      - S3_ACCESS_KEY=admin
+      - S3_SECRET_KEY=${S3_SECRET_KEY:?err}
+      - S3_BUCKET=recordings
+
+  voicebot:
+    image: r.ispa.dev/masina/voicebot:${VOICEBOT_VERSION:-latest}
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      VOICEBOT_KEY: ${VOICEBOT_KEY:?err}
+      MASINA_URL: https://${MASINA_URL:?err}
+      MASINA_TOKEN: ${MASINA_TOKEN:?err}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot.rule=Host(`${VOICEBOT_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-voicebot-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot.middlewares=${STACKNAME:?err}-voicebot-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.rule=Host(`${VOICEBOT_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.service=voicebot"
+      - "traefik.http.services.${STACKNAME:?err}-voicebot.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+    command: server /data --console-address ":9001"
+    networks:
+      - proxy
+    #ports:
+    #  - 9000:9000
+    #  - 9001:9001
+    volumes:
+      - minio:/data
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY:?err}
+     
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      # s3.galadriel.srv.ispa.dev -> :9000
+      - "traefik.http.routers.${STACKNAME:?err}-s3.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-s3.rule=Host(`${S3_ENDPOINT_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-s3-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.${STACKNAME:?err}-s3.middlewares=${STACKNAME:?err}-s3-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.rule=Host(`${S3_ENDPOINT_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.service=s3"
+      - "traefik.http.services.${STACKNAME:?err}-s3.loadbalancer.server.port=9000"
+
+      # minio.galadriel.srv.ispa.dev -> :9001
+      - "traefik.http.routers.${STACKNAME:?err}-minio.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-minio.rule=Host(`${S3_GUI_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-minio-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.${STACKNAME:?err}-minio.middlewares=${STACKNAME:?err}-minio-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.rule=Host(`${S3_GUI_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.service=minio"
+      - "traefik.http.services.${STACKNAME:?err}-minio.loadbalancer.server.port=9001"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  tmp:
+  minio:
