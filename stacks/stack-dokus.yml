@@ -4,7 +4,7 @@ services:
     #ports: 
     #  - ${DOKUS_EXTERNAL_PORT:-1122}:8080
     environment:
-      DOKUS_ROOT_PASSWORD: ${DOKUS_ROOT_PASSWORD:-DoKus}
+      DOKUS_ROOT_PASSWORD: ${DOKUS_PASSWORD:-DoKus}
     restart: unless-stopped
     volumes:
       - dokus:/root/.dokus/root

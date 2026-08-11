@@ -606,6 +606,12 @@
             "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
             "env": [
                 {
+                    "name": "STACKNAME",
+                    "default": "dokus",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used as name for traefik router, etc. String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
                     "name": "DOKUS_URL",
                     "default": "dokus.example.com",
                     "label": "Dokus URL.",
@@ -620,7 +626,7 @@
                 {
                     "name": "DOKUS_IP_WHITELIST",
                     "default": "0.0.0.0/0",
-                    "label": "Adminer allowed IP addresses",
+                    "label": "Dokus allowed IP addresses",
                     "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
                 }
             ]
