@@ -42,6 +42,7 @@ services:
 
   rabbitmq:
     image: docker.io/bitnamilegacy/rabbitmq:3.11
+    restart: unless-stopped
     environment:
       - RABBITMQ_SECURE_PASSWORD=no
       - RABBITMQ_UPDATE_PASSWORD=yes

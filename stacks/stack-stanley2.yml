@@ -2,7 +2,7 @@ services:
   stanley2:
     image: r.ispa.dev/masina/stanley2:${STANLEY_VERSION:-latest}
     restart: unless-stopped
-    volumes: 
+    volumes:
       - ${STANLEY_VOLUME_CONFIG:?err}:/var/www/shared
       - db:/var/www/current/db
 

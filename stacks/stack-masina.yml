@@ -5,7 +5,7 @@ x-env: &env
   NETTE__DATABASE__DBNAME: ${STACKNAME:?err}
 
   NETTE__SMTP__HOST: ${SMTP_HOST:?err}
-  NETTE__SMTP__PORT: ${SMTP_PORT:?err}  # (int) SMTP port, typicaly: 25, 465, 587
+  NETTE__SMTP__PORT: ${SMTP_PORT:?err}  # (int) SMTP port, typically: 25, 465, 587
   NETTE__SMTP__SECURE: ${SMTP_SECURE-}  # (null,ssl,tls)
   NETTE__SMTP__USERNAME: ${SMTP_USERNAME-}
   NETTE__SMTP__PASSWORD: ${SMTP_PASSWORD-}
@@ -20,18 +20,18 @@ x-env: &env
   NETTE__EXTRAS__3RD__PEDEF__HOST: https://pedef.adminus.io/v1/pdf/
   NETTE__PROJECT__URL: https://${MASINA_FQDN:?err}
   NETTE__L10N__DEFAULT__LOCALE: cs
-  #NETTE__SENTRY__CLIENT__DSN: 
+  #NETTE__SENTRY__CLIENT__DSN:
 
-  #NETTE__socials__google__client_Id: 
-  #NETTE__socials__google__client_Secret: 
-  
+  #NETTE__socials__google__client_Id:
+  #NETTE__socials__google__client_Secret:
+
   NETTE__REDIS__HOST: redis
-  #NETTE__REDIS__DATABASE: 
-  #NETTE__REDIS__PASSWORD: 
+  #NETTE__REDIS__DATABASE:
+  #NETTE__REDIS__PASSWORD:
 
 x-common: &common
   image: r.ispa.dev/masina/masina:${MASINA_VERSION:-latest}
-  restart: always
+  restart: unless-stopped
   networks:
     - default
     - proxy

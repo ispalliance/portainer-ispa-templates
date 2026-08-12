@@ -4,7 +4,7 @@ Templates of ISP Alliance's docker apps, designed for easy deployment via [Porta
 
 Portainer documentation of the app templates [here.](https://docs.portainer.io/advanced/app-templates/format#stack-template-definition-format)
 
-**Minimum supported Portainer version: 2.20.0** Templates uses the version 3 format.
+**Minimum supported Portainer version: 2.20.0.** Templates use the version 3 format.
 
 ![How to show templates](./screenshots/show_templates.png)
 

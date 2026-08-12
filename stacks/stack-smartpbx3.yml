@@ -14,7 +14,7 @@ services:
       - SIP_SERVER=${SIP_SERVER:?err}
       - SIP_REGISTER=${SIP_REGISTER:-yes}
       - SIP_DIVERSIONID=${SIP_DIVERSIONID:?err}
-      
+
       - LOCAL_NET=${LOCAL_NET:-172.16.0.0/12}
       - LOG_FILE=/tmp/smartpbx.log
       # Microsoft config
@@ -52,6 +52,7 @@ services:
 
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+    restart: unless-stopped
     command: server /data --console-address ":9001"
     networks:
       - proxy
@@ -63,12 +64,12 @@ services:
     environment:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY:?err}
-     
+
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
 
-      # s3.galadriel.srv.ispa.dev -> :9000
+      # ${S3_ENDPOINT_URL} -> :9000
       - "traefik.http.routers.${STACKNAME:?err}-s3.entrypoints=http"
       - "traefik.http.routers.${STACKNAME:?err}-s3.rule=Host(`${S3_ENDPOINT_URL:?err}`)"
       - "traefik.http.middlewares.${STACKNAME:?err}-s3-https-redirect.redirectscheme.scheme=https"
@@ -80,7 +81,7 @@ services:
       - "traefik.http.routers.${STACKNAME:?err}-s3-secure.service=s3"
       - "traefik.http.services.${STACKNAME:?err}-s3.loadbalancer.server.port=9000"
 
-      # minio.galadriel.srv.ispa.dev -> :9001
+      # ${S3_GUI_URL} -> :9001
       - "traefik.http.routers.${STACKNAME:?err}-minio.entrypoints=http"
       - "traefik.http.routers.${STACKNAME:?err}-minio.rule=Host(`${S3_GUI_URL:?err}`)"
       - "traefik.http.middlewares.${STACKNAME:?err}-minio-https-redirect.redirectscheme.scheme=https"

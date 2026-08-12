@@ -93,7 +93,6 @@ services:
     image: r.ispa.dev/sandbox/init:php${PHP_VERSION}
     networks:
       - default
-      - proxy
     <<: *volumes
     environment:
       DOWNLOAD_LATEST_BUILD: ${DOWNLOAD_LATEST_BUILD:-no}
