@@ -1,0 +1,99 @@
+services:
+  postgres:
+    image: timescale/timescaledb:${TIMESCALEDB_TAG:?err}
+    restart: unless-stopped
+    networks:
+      - default
+    #ports:
+    #  # outside:inside
+    #  - ${POSTGRES_EXTERNAL_PORT:-5432}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${STACKNAME:?err}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      TZ: Europe/Prague
+      PGTZ: Europe/Prague
+      POSTGRES_USER: ${STACKNAME:?err}
+      POSTGRES_DB: ${STACKNAME:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:${ZABBIX_TAG:?err}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - default
+    # uncomment only if zabbix_sender or active agents outside this stack need the trapper
+    #ports:
+    #  # outside:inside
+    #  - ${ZBX_TRAPPER_EXTERNAL_PORT:-10051}:10051
+    environment:
+      TZ: Europe/Prague
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: ${STACKNAME:?err}
+      POSTGRES_DB: ${STACKNAME:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+      # on DB init the entrypoint runs CREATE EXTENSION timescaledb + timescaledb.sql
+      # (hypertables + compression policies) — applies to a fresh empty DB only
+      ENABLE_TIMESCALEDB: "true"
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:${ZABBIX_TAG:?err}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - default
+      - proxy
+    # traefik below is the normal way in; publish the port only for local debugging
+    #ports:
+    #  # outside:inside
+    #  - ${ZABBIX_EXTERNAL_PORT:-8088}:8080
+    environment:
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: ${STACKNAME:?err}
+      POSTGRES_DB: ${STACKNAME:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: Europe/Prague
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix.rule=Host(`${ZABBIX_FQDN:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-zabbix-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-zabbix-ipwhitelist.ipwhitelist.sourcerange=${ZABBIX_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix.middlewares=${STACKNAME:?err}-zabbix-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.rule=Host(`${ZABBIX_FQDN:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.middlewares=${STACKNAME:?err}-zabbix-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.service=${STACKNAME:?err}-zabbix"
+      - "traefik.http.services.${STACKNAME:?err}-zabbix.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
+
+  zabbix-agent2:
+    image: zabbix/zabbix-agent2:${ZABBIX_TAG:?err}
+    restart: unless-stopped
+    networks:
+      - default
+    environment:
+      TZ: Europe/Prague
+      # self-monitoring demo host — after the first start switch the "Zabbix server" host
+      # interface to DNS zabbix-agent2:10050 (it defaults to 127.0.0.1)
+      ZBX_HOSTNAME: "Zabbix server"
+      ZBX_SERVER_HOST: zabbix-server
+
+volumes:
+  db:
+
+networks:
+  proxy:
+    external: true

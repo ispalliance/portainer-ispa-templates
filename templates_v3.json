@@ -1310,6 +1310,63 @@
                 }
             ]
 
+        },
+        {
+            "id": 14,
+            "type": 3,
+            "title": "Zabbix",
+            "description": "Zabbix 7.0 LTS monitoring with TimescaleDB. Using traefikv2 rProxy (should be preinstaled on your docker platform). Intended for testing environments only - not suitable for production use.",
+            "note": "This stack is intended for testing environments only and is not suitable for production use. TimescaleDB hypertables and compression policies are created by the server entrypoint on the first initialization of an empty database only. STACKNAME is also the database name and user, so it cannot be changed once the stack has data. Default web login is Admin / zabbix - change it after the first login.",
+            "categories": [
+                "monitoring"
+            ],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
+                "stackfile": "stacks/stack-zabbix.yml"
+            },
+            "administrator_only": false,
+            "name": "zabbix",
+            "logo": "https://assets.zabbix.com/img/apple-touch-icon-180x180-precomposed.png",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "zabbix",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used as name for database, traefik, etc. String with lowecase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "ZABBIX_FQDN",
+                    "default": "zabbix.example.com",
+                    "label": "Zabbix FQDN",
+                    "description": "FQDN of the Zabbix frontend."
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "default": "",
+                    "label": "Postgresql password.",
+                    "description": "Password for the database user."
+                },
+                {
+                    "name": "ZABBIX_TAG",
+                    "default": "alpine-7.0-latest",
+                    "label": "Zabbix version",
+                    "description": "Image tag used for the server, frontend and agent. Stay on the 7.0 LTS line - template exports are forward compatible only, so templates tuned on a newer release may not import into 7.0."
+                },
+                {
+                    "name": "TIMESCALEDB_TAG",
+                    "default": "2.27.2-pg17",
+                    "label": "TimescaleDB version",
+                    "description": "Image tag of timescale/timescaledb (community edition, i.e. no -oss suffix, which is the one with compression). 2.27.x is the ceiling accepted by the Zabbix 7.0 binary - 2.28 is refused at runtime as too new. Do not raise without checking, upgrading the extension has its own procedure."
+                },
+                {
+                    "name": "ZABBIX_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Allowed IP addresses",
+                    "description": "A coma separated list of IP addresses which are allowed to access this application web gui."
+                }
+            ]
         }
     ]
 }
