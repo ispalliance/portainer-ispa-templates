@@ -1315,8 +1315,8 @@
             "id": 14,
             "type": 3,
             "title": "Zabbix",
-            "description": "Zabbix 7.0 LTS monitoring with TimescaleDB. Using traefikv2 rProxy (should be preinstalled on your docker platform). Intended for testing environments only - not suitable for production use.",
-            "note": "This stack is intended for testing environments only and is not suitable for production use. TimescaleDB hypertables and compression policies are created by the server entrypoint on the first initialization of an empty database only. STACKNAME is also the database name and user, so it cannot be changed once the stack has data. Default web login is Admin / zabbix - change it after the first login.",
+            "description": "Zabbix 7.0 LTS monitoring with TimescaleDB. Using traefikv2 rProxy (should be preinstalled on your docker platform). Server tuning defaults are sized for roughly 1300 hosts and 130 new values per second.",
+            "note": "TimescaleDB hypertables and compression policies are created by the server entrypoint on the first initialization of an empty database only. The same applies to the PostgreSQL memory settings - the timescaledb image runs timescaledb-tune once, on a fresh database, sizing shared_buffers and work_mem from the memory available to the container; on an existing database they have to be changed in postgresql.conf inside the volume instead. STACKNAME is also the database name and user, so it cannot be changed once the stack has data. The Zabbix server cache and poller defaults target roughly 1300 hosts / 130 new values per second and can be lowered for a small install. Default web login is Admin / zabbix - change it after the first login.",
             "categories": [
                 "monitoring"
             ],
@@ -1337,10 +1337,10 @@
                     "description": "It is used as name for database, traefik, etc. String with lowercase letters, digits and underscores. It must not contain spaces, dashes etc."
                 },
                 {
-                    "name": "ZABBIX_FQDN",
+                    "name": "APP_URL",
                     "default": "zabbix.example.com",
-                    "label": "Zabbix FQDN",
-                    "description": "FQDN of the Zabbix frontend."
+                    "label": "URL",
+                    "description": "Domain name without http:// or https://"
                 },
                 {
                     "name": "POSTGRES_PASSWORD",
@@ -1361,10 +1361,70 @@
                     "description": "Image tag of timescale/timescaledb (community edition, i.e. no -oss suffix, which is the one with compression). 2.27.x is the ceiling accepted by the Zabbix 7.0 binary - 2.28 is refused at runtime as too new. Do not raise without checking, upgrading the extension has its own procedure."
                 },
                 {
-                    "name": "ZABBIX_IP_WHITELIST",
+                    "name": "APP_IP_WHITELIST",
                     "default": "0.0.0.0/0",
                     "label": "Allowed IP addresses",
                     "description": "A comma separated list of IP addresses which are allowed to access this application web gui."
+                },
+                {
+                    "name": "ZBX_CACHESIZE",
+                    "default": "256M",
+                    "label": "Configuration cache size",
+                    "description": "Shared memory holding hosts, items and triggers. Watch the internal item zabbix[rcache,buffer,pused] and raise it before it fills up. Zabbix default is 32M."
+                },
+                {
+                    "name": "ZBX_HISTORYCACHESIZE",
+                    "default": "64M",
+                    "label": "History cache size",
+                    "description": "Write buffer for collected values, drained by the history syncers. Mostly idle - it is the reserve that absorbs a stall in writes to the database. Zabbix default is 16M."
+                },
+                {
+                    "name": "ZBX_HISTORYINDEXCACHESIZE",
+                    "default": "16M",
+                    "label": "History index cache size",
+                    "description": "Index over the history cache. Scale it together with the history cache. Zabbix default is 4M."
+                },
+                {
+                    "name": "ZBX_VALUECACHESIZE",
+                    "default": "128M",
+                    "label": "Value cache size",
+                    "description": "Caches historical values for trigger expressions. If it runs out the server logs a low memory warning and falls back to reading from the database on every evaluation. Zabbix default is 8M."
+                },
+                {
+                    "name": "ZBX_TRENDCACHESIZE",
+                    "default": "32M",
+                    "label": "Trend cache size",
+                    "description": "Caches the hourly aggregates before they are written to the trends table. Zabbix default is 4M."
+                },
+                {
+                    "name": "ZBX_STARTPOLLERS",
+                    "default": "20",
+                    "label": "Pollers",
+                    "description": "Number of processes doing regular checks. Watch zabbix[process,poller,avg,busy] - if it stays near 100 percent, checks are getting late. Zabbix default is 5."
+                },
+                {
+                    "name": "ZBX_STARTSNMPPOLLERS",
+                    "default": "5",
+                    "label": "SNMP pollers",
+                    "description": "Number of asynchronous SNMP pollers. Available since Zabbix 7.0, where SNMP polling no longer runs in the regular pollers. Zabbix default is 1."
+                },
+                {
+                    "name": "ZBX_STARTPINGERS",
+                    "default": "20",
+                    "label": "ICMP pingers",
+                    "description": "Number of processes doing icmpping checks via fping. Zabbix default is 1."
+                },
+                {
+                    "name": "ZBX_STARTPOLLERSUNREACHABLE",
+                    "default": "30",
+                    "label": "Unreachable pollers",
+                    "description": "Number of processes retrying hosts that are down. Hosts that stay permanently unreachable keep these busy, so raise this together with the retry delay below. Zabbix default is 1."
+                },
+                {
+                    "name": "ZBX_UNAVAILABLEDELAY",
+                    "default": "60",
+                    "label": "Unavailable host retry delay (s)",
+                    "description": "How long to wait before retrying a host already marked unavailable. Raising it is the cheaper way to relieve saturated unreachable pollers, at the cost of noticing a recovered host that much later. Zabbix default is 60."
                 }
             ]
         }
