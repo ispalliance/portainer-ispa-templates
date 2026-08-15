@@ -29,6 +29,12 @@ services:
         condition: service_healthy
     networks:
       - default
+    healthcheck:
+      test: ["CMD-SHELL", "nc -w1 -z 127.0.0.1 10051 </dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
     # uncomment only if zabbix_sender or active agents outside this stack need the trapper
     #ports:
     #  # outside:inside
@@ -42,6 +48,25 @@ services:
       # on DB init the entrypoint runs CREATE EXTENSION timescaledb + timescaledb.sql
       # (hypertables + compression policies) — applies to a fresh empty DB only
       ENABLE_TIMESCALEDB: "true"
+      # Tuning defaults target roughly 1300 hosts / 130 new values per second.
+      # Lower them for a small install; every value can be set from Portainer.
+      # configuration cache — holds hosts, items and triggers
+      ZBX_CACHESIZE: ${ZBX_CACHESIZE:-256M}
+      # write buffers — absorb a stall in writes to the database
+      ZBX_HISTORYCACHESIZE: ${ZBX_HISTORYCACHESIZE:-64M}
+      ZBX_HISTORYINDEXCACHESIZE: ${ZBX_HISTORYINDEXCACHESIZE:-16M}
+      # read caches — serve trigger expressions without hitting the database
+      ZBX_VALUECACHESIZE: ${ZBX_VALUECACHESIZE:-128M}
+      ZBX_TRENDCACHESIZE: ${ZBX_TRENDCACHESIZE:-32M}
+      # polling capacity
+      ZBX_STARTPOLLERS: ${ZBX_STARTPOLLERS:-20}
+      ZBX_STARTSNMPPOLLERS: ${ZBX_STARTSNMPPOLLERS:-5}
+      ZBX_STARTPINGERS: ${ZBX_STARTPINGERS:-20}
+      # unreachable pollers retry hosts that are down; raise together with
+      # ZBX_UNAVAILABLEDELAY when a lot of hosts stay permanently unreachable
+      ZBX_STARTPOLLERSUNREACHABLE: ${ZBX_STARTPOLLERSUNREACHABLE:-30}
+      # how long to wait before retrying a host already marked unavailable
+      ZBX_UNAVAILABLEDELAY: ${ZBX_UNAVAILABLEDELAY:-60}
 
   zabbix-web:
     image: zabbix/zabbix-web-nginx-pgsql:${ZABBIX_TAG:?err}
@@ -55,7 +80,7 @@ services:
     # traefik below is the normal way in; publish the port only for local debugging
     #ports:
     #  # outside:inside
-    #  - ${ZABBIX_EXTERNAL_PORT:-8088}:8080
+    #  - ${APP_EXTERNAL_PORT:-8088}:8080
     environment:
       DB_SERVER_HOST: postgres
       POSTGRES_USER: ${STACKNAME:?err}
@@ -65,18 +90,18 @@ services:
       PHP_TZ: Europe/Prague
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix.entrypoints=http"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix.rule=Host(`${ZABBIX_FQDN:?err}`)"
-      - "traefik.http.middlewares.${STACKNAME:?err}-zabbix-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.${STACKNAME:?err}-zabbix-ipwhitelist.ipwhitelist.sourcerange=${ZABBIX_IP_WHITELIST:-0.0.0.0/0}"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix.middlewares=${STACKNAME:?err}-zabbix-https-redirect"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.entrypoints=https"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.rule=Host(`${ZABBIX_FQDN:?err}`)"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.middlewares=${STACKNAME:?err}-zabbix-ipwhitelist"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.tls=true"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.tls.certresolver=http"
-      - "traefik.http.routers.${STACKNAME:?err}-zabbix-secure.service=${STACKNAME:?err}-zabbix"
-      - "traefik.http.services.${STACKNAME:?err}-zabbix.loadbalancer.server.port=8080"
+      - "traefik.http.routers.${STACKNAME:?err}-web.entrypoints=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web.rule=Host(`${APP_URL:?err}`)"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${STACKNAME:?err}-web-ipwhitelist.ipwhitelist.sourcerange=${APP_IP_WHITELIST:-0.0.0.0/0}"
+      - "traefik.http.routers.${STACKNAME:?err}-web.middlewares=${STACKNAME:?err}-web-https-redirect"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.entrypoints=https"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.rule=Host(`${APP_URL:?err}`)"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.middlewares=${STACKNAME:?err}-web-ipwhitelist"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls=true"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.tls.certresolver=http"
+      - "traefik.http.routers.${STACKNAME:?err}-web-secure.service=${STACKNAME:?err}-web"
+      - "traefik.http.services.${STACKNAME:?err}-web.loadbalancer.server.port=8080"
       - "traefik.docker.network=proxy"
 
   zabbix-agent2:
