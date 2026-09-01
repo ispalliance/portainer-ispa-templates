@@ -46,7 +46,7 @@ services:
       - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.rule=Host(`${VOICEBOT_URL:?err}`)"
       - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.tls=true"
       - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.tls.certresolver=http"
-      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.service=voicebot"
+      - "traefik.http.routers.${STACKNAME:?err}-voicebot-secure.service=${STACKNAME:?err}-voicebot"
       - "traefik.http.services.${STACKNAME:?err}-voicebot.loadbalancer.server.port=80"
       - "traefik.docker.network=proxy"
 
@@ -78,7 +78,7 @@ services:
       - "traefik.http.routers.${STACKNAME:?err}-s3-secure.rule=Host(`${S3_ENDPOINT_URL:?err}`)"
       - "traefik.http.routers.${STACKNAME:?err}-s3-secure.tls=true"
       - "traefik.http.routers.${STACKNAME:?err}-s3-secure.tls.certresolver=http"
-      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.service=s3"
+      - "traefik.http.routers.${STACKNAME:?err}-s3-secure.service=${STACKNAME:?err}-s3"
       - "traefik.http.services.${STACKNAME:?err}-s3.loadbalancer.server.port=9000"
 
       # ${S3_GUI_URL} -> :9001
@@ -90,7 +90,7 @@ services:
       - "traefik.http.routers.${STACKNAME:?err}-minio-secure.rule=Host(`${S3_GUI_URL:?err}`)"
       - "traefik.http.routers.${STACKNAME:?err}-minio-secure.tls=true"
       - "traefik.http.routers.${STACKNAME:?err}-minio-secure.tls.certresolver=http"
-      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.service=minio"
+      - "traefik.http.routers.${STACKNAME:?err}-minio-secure.service=${STACKNAME:?err}-minio"
       - "traefik.http.services.${STACKNAME:?err}-minio.loadbalancer.server.port=9001"
 
 networks:
