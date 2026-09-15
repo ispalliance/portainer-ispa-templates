@@ -196,59 +196,65 @@ services:
         BENTHOS_CONFIG
         exec /benthos -c /tmp/benthos.yaml
 
-  # ---------------------------------------------------------------------
-  # OPTIONAL self-test page - commented out on purpose. To switch it on,
-  # uncomment the block below (strip the leading "# " from each line) and add
-  # the three variables it needs to the template's env array.
-  #
-  # It is one page with one button that verifies the whole RabbitMQ ->
-  # Benthos -> Centrifugo -> browser chain and says in plain words what is
-  # broken when it is not green. Its last check runs from the visitor's
-  # browser against the PUBLIC Centrifugo URL, so it covers Traefik, TLS and
-  # the WebSocket upgrade as well, not just the internal docker network.
-  #
-  # The image is built from its own repository and pulled from the private
-  # registry; this stack only feeds it environment variables.
-  #
-  # Variables to declare in the template when enabling it - all three are
-  # :?err, so without them the deploy fails with an error Portainer cannot
-  # explain to the user:
-  #   SELFTEST_URL            FQDN of the page
-  #   SELFTEST_IP_WHITELIST   source ranges allowed in - see the warning below
-  #   SELFTEST_VERSION        image tag; falls back to latest
-  #
-  # The page can publish into the queue and hands a short-lived token to the
-  # browser, so keep SELFTEST_IP_WHITELIST tight - never open it to the world.
-  # ---------------------------------------------------------------------
-  # selftest:
-  #   image: r.ispa.dev/sandbox/centrifugo-selftest:${SELFTEST_VERSION:-latest}
-  #   restart: unless-stopped
-  #   networks:
-  #     - default
-  #     - proxy
-  #   environment:
-  #     - CENTRIFUGO_PUBLIC_URL=${CENTRIFUGO_URL:?err}
-  #     - CENTRIFUGO_HMAC_SECRET=${CENTRIFUGO_HMAC_SECRET:?err}
-  #     - CENTRIFUGO_API_KEY=${CENTRIFUGO_API_KEY:?err}
-  #     - RABBITMQ_USER=${RABBITMQ_USER:-user}
-  #     - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
-  #     - RABBITMQ_VHOST=${RABBITMQ_VHOST:-centrifugo}
-  #     - RABBITMQ_QUEUE=${RABBITMQ_QUEUE:-centrifugo_events}
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.docker.network=proxy"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest.entrypoints=http"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest.rule=Host(`${SELFTEST_URL:?err}`)"
-  #     - "traefik.http.middlewares.${STACKNAME:?err}-selftest-https-redirect.redirectscheme.scheme=https"
-  #     - "traefik.http.middlewares.${STACKNAME:?err}-selftest-ipallowlist.ipallowlist.sourcerange=${SELFTEST_IP_WHITELIST:?err}"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest.middlewares=${STACKNAME:?err}-selftest-https-redirect"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.entrypoints=https"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.rule=Host(`${SELFTEST_URL:?err}`)"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.middlewares=${STACKNAME:?err}-selftest-ipallowlist"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.tls=true"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.tls.certresolver=http"
-  #     - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.service=${STACKNAME:?err}-selftest"
-  #     - "traefik.http.services.${STACKNAME:?err}-selftest.loadbalancer.server.port=8080"
+# ---------------------------------------------------------------------
+# OPTIONAL self-test page - commented out on purpose. To switch it on,
+# delete just the leading "#" from each line of the service block below
+# (nothing else - the indentation is already correct) and add the three
+# variables it needs to the template's env array.
+#
+# It is one page with one button that verifies the whole RabbitMQ ->
+# Benthos -> Centrifugo -> browser chain and says in plain words what is
+# broken when it is not green. Its last check runs from the visitor's
+# browser against the PUBLIC Centrifugo URL, so it covers Traefik, TLS and
+# the WebSocket upgrade as well, not just the internal docker network.
+#
+# The image is built from its own repository and pulled from the private
+# registry; this stack only feeds it environment variables.
+#
+# Variables to declare in the template when enabling it. The first two are
+# :?err, so without them the deploy fails with an error Portainer cannot
+# explain to the user; SELFTEST_VERSION is optional:
+#   SELFTEST_URL            (mandatory) FQDN of the page
+#   SELFTEST_IP_WHITELIST   (mandatory) source ranges allowed in - see the warning below
+#   SELFTEST_VERSION        (optional) image tag; falls back to latest
+#
+# Example:
+#   SELFTEST_URL=selftest.example.com
+#   SELFTEST_IP_WHITELIST=10.0.0.0/8
+#   SELFTEST_VERSION=v1.0.1
+#
+# The page can publish into the queue and hands a short-lived token to the
+# browser, so keep SELFTEST_IP_WHITELIST tight - never open it to the world.
+# ---------------------------------------------------------------------
+#  selftest:
+#    image: r.ispa.dev/sandbox/centrifugo-selftest:${SELFTEST_VERSION:-latest}
+#    restart: unless-stopped
+#    networks:
+#      - default
+#      - proxy
+#    environment:
+#      - CENTRIFUGO_PUBLIC_URL=${CENTRIFUGO_URL:?err}
+#      - CENTRIFUGO_HMAC_SECRET=${CENTRIFUGO_HMAC_SECRET:?err}
+#      - CENTRIFUGO_API_KEY=${CENTRIFUGO_API_KEY:?err}
+#      - RABBITMQ_USER=${RABBITMQ_USER:-user}
+#      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?err}
+#      - RABBITMQ_VHOST=${RABBITMQ_VHOST:-centrifugo}
+#      - RABBITMQ_QUEUE=${RABBITMQ_QUEUE:-centrifugo_events}
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.docker.network=proxy"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest.entrypoints=http"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest.rule=Host(`${SELFTEST_URL:?err}`)"
+#      - "traefik.http.middlewares.${STACKNAME:?err}-selftest-https-redirect.redirectscheme.scheme=https"
+#      - "traefik.http.middlewares.${STACKNAME:?err}-selftest-ipallowlist.ipallowlist.sourcerange=${SELFTEST_IP_WHITELIST:?err}"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest.middlewares=${STACKNAME:?err}-selftest-https-redirect"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.entrypoints=https"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.rule=Host(`${SELFTEST_URL:?err}`)"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.middlewares=${STACKNAME:?err}-selftest-ipallowlist"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.tls=true"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.tls.certresolver=http"
+#      - "traefik.http.routers.${STACKNAME:?err}-selftest-secure.service=${STACKNAME:?err}-selftest"
+#      - "traefik.http.services.${STACKNAME:?err}-selftest.loadbalancer.server.port=8080"
 
 networks:
   proxy:
