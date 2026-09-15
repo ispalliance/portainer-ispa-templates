@@ -1,1 +1,5 @@
 *.code-workspace
+CLAUDE.md
+tools/
+todo.md
+.claude/
