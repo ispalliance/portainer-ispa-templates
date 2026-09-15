@@ -1427,6 +1427,155 @@
                     "description": "How long to wait before retrying a host already marked unavailable. Raising it is the cheaper way to relieve saturated unreachable pollers, at the cost of noticing a recovered host that much later. Zabbix default is 60."
                 }
             ]
+        },
+        {
+            "id": 15,
+            "type": 3,
+            "title": "Centrifugo + RabbitMQ + Benthos",
+            "description": "Real-time messaging stack. Centrifugo pushes events to browsers over WebSocket, a RabbitMQ queue accepts them from the application and a Benthos forwarder moves them from the queue into Centrifugo channels. Using traefikv2 rProxy (should be preinstalled on your docker platform).",
+            "note": "Applications publish JSON messages {\"channel\": \"...\", \"payload\": {...}} into the RabbitMQ queue; Benthos forwards them to the Centrifugo HTTP API. Centrifugo runs on the in-memory engine, so it is a single node without message history - a Redis engine is needed before scaling out. The Centrifugo host serves the WebSocket endpoint, the HTTP API and the admin UI on one port.",
+            "categories": ["sandbox"],
+            "platform": "linux",
+            "repository": {
+                "url": "https://github.com/ispalliance/portainer-ispa-templates",
+                "stackfile": "stacks/stack-centrifugo.yml"
+            },
+            "administrator_only": false,
+            "name": "centrifugo",
+            "logo": "https://avatars.githubusercontent.com/u/6236442?s=200",
+            "maintainer": "https://github.com/ispalliance/portainer-ispa-templates",
+            "env": [
+                {
+                    "name": "STACKNAME",
+                    "default": "centrifugo",
+                    "label": "Unique name (or ID) of this stack",
+                    "description": "It is used in traefik labels, etc. String with lowercase letters, digits and underscores. It must not contain spaces, dashes etc."
+                },
+                {
+                    "name": "CENTRIFUGO_URL",
+                    "default": "",
+                    "label": "Centrifugo URL",
+                    "description": "FQDN serving the WebSocket endpoint, the HTTP API and the admin UI, for example centrifugo.example.com."
+                },
+                {
+                    "name": "CENTRIFUGO_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "Centrifugo IP whitelist",
+                    "description": "Source ranges allowed to reach Centrifugo. Browser clients connect from anywhere, so restricting this also cuts off the application users."
+                },
+                {
+                    "name": "CENTRIFUGO_ALLOWED_ORIGINS",
+                    "default": "*",
+                    "label": "Allowed browser origins",
+                    "description": "Origin header of the web app that opens the WebSocket, not the Centrifugo URL itself. SPACE separated list, for example: https://app.example.com https://admin.example.com. A comma separated value is parsed as one single origin and then rejects every connection with HTTP 403. The default * allows any origin and is meant for testing only."
+                },
+                {
+                    "name": "CENTRIFUGO_API_KEY",
+                    "default": "",
+                    "label": "Centrifugo HTTP API key",
+                    "description": "Key required in the X-API-Key header of every HTTP API call. Used by the Benthos forwarder and by the application. It should be a long random string."
+                },
+                {
+                    "name": "CENTRIFUGO_HMAC_SECRET",
+                    "default": "",
+                    "label": "Centrifugo JWT HMAC secret",
+                    "description": "HS256 secret that the application signs client connection tokens with. It should be a long random string."
+                },
+                {
+                    "name": "CENTRIFUGO_ADMIN_ENABLED",
+                    "label": "Centrifugo admin UI",
+                    "description": "Whether to serve the admin web UI. Disable it if the Centrifugo URL is reachable from the internet and the UI is not needed.",
+                    "select": [
+                        {
+                          "text": "enabled",
+                          "value": "true",
+                          "default": true
+                        },
+                        {
+                          "text": "disabled",
+                          "value": "false"
+                        }
+                    ]
+                },
+                {
+                    "name": "CENTRIFUGO_ADMIN_PASSWORD",
+                    "default": "",
+                    "label": "Centrifugo admin password",
+                    "description": "Password for logging into the admin web UI."
+                },
+                {
+                    "name": "CENTRIFUGO_ADMIN_SECRET",
+                    "default": "",
+                    "label": "Centrifugo admin secret",
+                    "description": "Secret used to sign admin UI sessions. It should be a long random string, different from the admin password."
+                },
+                {
+                    "name": "CENTRIFUGO_VERSION",
+                    "default": "v6",
+                    "label": "Centrifugo version",
+                    "description": "Image tag of centrifugo/centrifugo."
+                },
+                {
+                    "name": "CENTRIFUGO_CHANNEL_NAMESPACES",
+                    "default": "[{\"name\":\"crm\"},{\"name\":\"nms\"},{\"name\":\"ipr\"},{\"name\":\"mapping\"},{\"name\":\"marketing\"}]",
+                    "label": "Channel namespaces",
+                    "description": "JSON array of channel namespaces. Channel names are <namespace>:<rest> and only listed namespaces exist - publishing into an unknown one is rejected. Pre-filled for the crm, nms, ipr, mapping and marketing apps; add one by appending {\"name\":\"<app>\"}."
+                },
+                {
+                    "name": "RABBITMQ_URL",
+                    "default": "",
+                    "label": "RabbitMQ management URL",
+                    "description": "FQDN of the RabbitMQ management web interface, for example rabbitmq.example.com."
+                },
+                {
+                    "name": "RABBITMQ_IP_WHITELIST",
+                    "default": "0.0.0.0/0",
+                    "label": "RabbitMQ management IP whitelist",
+                    "description": "Source ranges allowed to reach the RabbitMQ management interface. It is an administrative UI, so restrict it to your own networks."
+                },
+                {
+                    "name": "RABBITMQ_USER",
+                    "default": "user",
+                    "label": "RabbitMQ user",
+                    "description": "Username used by the application and the Benthos forwarder for AMQP, and for the management interface."
+                },
+                {
+                    "name": "RABBITMQ_PASSWORD",
+                    "default": "",
+                    "label": "RabbitMQ password",
+                    "description": "Password of the RabbitMQ user. It is re-applied on every deploy, so changing it here takes effect even though the volume already exists. Prefer an alphanumeric value - it is embedded in an AMQP URL, where reserved characters would have to be percent-encoded."
+                },
+                {
+                    "name": "RABBITMQ_VHOST",
+                    "default": "centrifugo",
+                    "label": "RabbitMQ vhost",
+                    "description": "Virtual host holding the queue. The entrypoint reconciles it on every boot, so changing it here is enough - the new vhost and its permissions are created on the next deploy."
+                },
+                {
+                    "name": "RABBITMQ_QUEUE",
+                    "default": "centrifugo_events",
+                    "label": "RabbitMQ queue",
+                    "description": "Queue that the application publishes into and the Benthos forwarder consumes from. It is declared as durable on startup."
+                },
+                {
+                    "name": "RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT",
+                    "default": "1GB",
+                    "label": "RabbitMQ disk free limit",
+                    "description": "RabbitMQ blocks publishers when free disk space drops below this value. Written into conf.d as disk_free_limit.absolute; the official image has no env var for it and defaults to only 50MB."
+                },
+                {
+                    "name": "RABBITMQ_VERSION",
+                    "default": "4.1.3",
+                    "label": "RabbitMQ version",
+                    "description": "Image tag of the official rabbitmq image; the stack appends -management to it."
+                },
+                {
+                    "name": "BENTHOS_VERSION",
+                    "default": "4",
+                    "label": "Benthos version",
+                    "description": "Image tag of jeffail/benthos."
+                }
+            ]
         }
     ]
 }
