@@ -30,7 +30,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   redis:
-    image:redis:8.2-alpine
+    image: redis:8.2-alpine
     restart: unless-stopped
     networks:
       - default
