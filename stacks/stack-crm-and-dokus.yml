@@ -37,7 +37,7 @@ services:
       - db:/var/lib/mysql
 
   redis:
-    image: redis:7.4-alpine
+    image:redis:8.2-alpine
     networks:
       - default
     restart: unless-stopped
