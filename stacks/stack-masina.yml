@@ -82,7 +82,7 @@ services:
       NETTE_DEBUG: 1
 
   postgres:
-    image: dockette/postgres:14
+    image: dockette/postgres:17
     networks:
       - default
     #ports:
