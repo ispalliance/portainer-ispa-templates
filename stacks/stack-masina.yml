@@ -17,7 +17,7 @@ x-env: &env
   NETTE__PROCESSING__FROMNAME: ${MAILING_FROM_NAME:-Masina}
 
   NETTE__HTTP__PROXY: 172.16.0.0/12
-  NETTE__EXTRAS__3RD__PEDEF__HOST: https://pedef.adminus.io/v1/pdf/
+  NETTE__CONNECTOR__PEDEF__URI: https://pedef.ispa.cz/v1/pdf/
   NETTE__PROJECT__URL: https://${MASINA_FQDN:?err}
   NETTE__L10N__DEFAULT__LOCALE: cs
   #NETTE__SENTRY__CLIENT__DSN:
