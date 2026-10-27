@@ -55,6 +55,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
+      start_period: 60s    # grace period: failures here don't count toward retries
+      start_interval: 2s
     environment:
       <<: *env
       NETTE_DEBUG: 0
